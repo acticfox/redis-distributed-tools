@@ -1,7 +1,7 @@
 /*
- * Copyright 2019 zhichubao.com All right reserved. This software is the confidential and proprietary information of
- * zhichubao.com ("Confidential Information"). You shall not disclose such Confidential Information and shall use it
- * only in accordance with the terms of the license agreement you entered into with zhichubao.com .
+ * Copyright 2019 github.com All right reserved. This software is the confidential and proprietary information of
+ * github.com ("Confidential Information"). You shall not disclose such Confidential Information and shall use it
+ * only in accordance with the terms of the license agreement you entered into with github.com .
  */
 package com.github.acticfox.redis.cache;
 
