@@ -1,9 +1,7 @@
 /*
- * Copyright 2019 github.com All right reserved. This software is the
- * confidential and proprietary information of github.com ("Confidential
- * Information"). You shall not disclose such Confidential Information and shall
- * use it only in accordance with the terms of the license agreement you entered
- * into with github.com .
+ * Copyright 2019 github.com All right reserved. This software is the confidential and proprietary information of
+ * github.com ("Confidential Information"). You shall not disclose such Confidential Information and shall use it only
+ * in accordance with the terms of the license agreement you entered into with github.com .
  */
 package com.github.acticfox.redis.tools.starter;
 
@@ -21,11 +19,11 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
+import com.github.acticfox.distributed.common.IdempotentTemplate;
+import com.github.acticfox.distributed.idempotent.ServiceIdempotentAspect;
+import com.github.acticfox.distributed.idempotent.dao.CommonIdempotentResultDao;
+import com.github.acticfox.distributed.idempotent.service.IdempotentService;
 import com.github.acticfox.redis.tools.starter.properties.RedisIdempotentProperties;
-import com.zhichubao.shared.distributed.common.IdempotentTemplate;
-import com.zhichubao.shared.distributed.idempotent.ServiceIdempotentAspect;
-import com.zhichubao.shared.distributed.idempotent.dao.CommonIdempotentResultDao;
-import com.zhichubao.shared.distributed.idempotent.service.IdempotentService;
 
 /**
  * 类TairAutoConfiguration.java的实现描述：TODO 类实现描述
@@ -38,62 +36,62 @@ import com.zhichubao.shared.distributed.idempotent.service.IdempotentService;
 @Import({RedisIdemmpotentAutoConfiguration.RedisIdempotentRegistrar.class})
 @AutoConfigureAfter(RedisToolsAutoConfiguration.class)
 public class RedisIdemmpotentAutoConfiguration {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RedisIdemmpotentAutoConfiguration.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(RedisIdemmpotentAutoConfiguration.class);
 
-	public static class RedisIdempotentRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
+    public static class RedisIdempotentRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 
-		private ConfigurableEnvironment environment;
+        private ConfigurableEnvironment environment;
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.springframework.context.EnvironmentAware#setEnvironment(org. springframework.core.env.Environment)
-		 */
-		@Override
-		public void setEnvironment(Environment environment) {
-			this.environment = (ConfigurableEnvironment) environment;
-		}
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.springframework.context.EnvironmentAware#setEnvironment(org. springframework.core.env.Environment)
+         */
+        @Override
+        public void setEnvironment(Environment environment) {
+            this.environment = (ConfigurableEnvironment)environment;
+        }
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.springframework.context.annotation.ImportBeanDefinitionRegistrar#
-		 * registerBeanDefinitions(org.springframework.core.type. AnnotationMetadata,
-		 * org.springframework.beans.factory.support.BeanDefinitionRegistry)
-		 */
-		@Override
-		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-				BeanDefinitionRegistry registry) {
-			// 创建firstIdempotentDao
-			BeanDefinitionBuilder firstIdempotentDaoBuilder = BeanDefinitionBuilder
-					.genericBeanDefinition(CommonIdempotentResultDao.class);
-			firstIdempotentDaoBuilder.addPropertyValue("cacheEngine", registry.getBeanDefinition("redisCacheEngine"));
-			registry.registerBeanDefinition("redisIdempotentResultDao", firstIdempotentDaoBuilder.getBeanDefinition());
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.springframework.context.annotation.ImportBeanDefinitionRegistrar#
+         * registerBeanDefinitions(org.springframework.core.type. AnnotationMetadata,
+         * org.springframework.beans.factory.support.BeanDefinitionRegistry)
+         */
+        @Override
+        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
+            BeanDefinitionRegistry registry) {
+            // 创建firstIdempotentDao
+            BeanDefinitionBuilder firstIdempotentDaoBuilder =
+                BeanDefinitionBuilder.genericBeanDefinition(CommonIdempotentResultDao.class);
+            firstIdempotentDaoBuilder.addPropertyValue("cacheEngine", registry.getBeanDefinition("redisCacheEngine"));
+            registry.registerBeanDefinition("redisIdempotentResultDao", firstIdempotentDaoBuilder.getBeanDefinition());
 
-			// 创建IdempotentService
-			BeanDefinitionBuilder idempotentServiceBuilder = BeanDefinitionBuilder
-					.genericBeanDefinition(IdempotentService.class);
-			idempotentServiceBuilder.addPropertyValue("firstLevelIdempotentResultDao",
-					registry.getBeanDefinition("redisIdempotentResultDao"));
-			registry.registerBeanDefinition("idempotentService", idempotentServiceBuilder.getBeanDefinition());
+            // 创建IdempotentService
+            BeanDefinitionBuilder idempotentServiceBuilder =
+                BeanDefinitionBuilder.genericBeanDefinition(IdempotentService.class);
+            idempotentServiceBuilder.addPropertyValue("firstLevelIdempotentResultDao",
+                registry.getBeanDefinition("redisIdempotentResultDao"));
+            registry.registerBeanDefinition("idempotentService", idempotentServiceBuilder.getBeanDefinition());
 
-			// 创建IdempotentTemplate
-			BeanDefinitionBuilder idempotentTemplateBuilder = BeanDefinitionBuilder
-					.genericBeanDefinition(IdempotentTemplate.class);
-			idempotentTemplateBuilder.addPropertyValue("idempotentService",
-					registry.getBeanDefinition("idempotentService"));
-			registry.registerBeanDefinition("idempotentTemplate", idempotentTemplateBuilder.getBeanDefinition());
+            // 创建IdempotentTemplate
+            BeanDefinitionBuilder idempotentTemplateBuilder =
+                BeanDefinitionBuilder.genericBeanDefinition(IdempotentTemplate.class);
+            idempotentTemplateBuilder.addPropertyValue("idempotentService",
+                registry.getBeanDefinition("idempotentService"));
+            registry.registerBeanDefinition("idempotentTemplate", idempotentTemplateBuilder.getBeanDefinition());
 
-			// 创建ServiceIdempotentAspect
-			BeanDefinitionBuilder serviceIdempotentAspectBuilder = BeanDefinitionBuilder
-					.genericBeanDefinition(ServiceIdempotentAspect.class);
-			serviceIdempotentAspectBuilder.addPropertyValue("idempotentTemplate",
-					registry.getBeanDefinition("idempotentTemplate"));
-			registry.registerBeanDefinition("serviceIdempotentAspect",
-					serviceIdempotentAspectBuilder.getBeanDefinition());
+            // 创建ServiceIdempotentAspect
+            BeanDefinitionBuilder serviceIdempotentAspectBuilder =
+                BeanDefinitionBuilder.genericBeanDefinition(ServiceIdempotentAspect.class);
+            serviceIdempotentAspectBuilder.addPropertyValue("idempotentTemplate",
+                registry.getBeanDefinition("idempotentTemplate"));
+            registry.registerBeanDefinition("serviceIdempotentAspect",
+                serviceIdempotentAspectBuilder.getBeanDefinition());
 
-		}
+        }
 
-	}
+    }
 
 }
